@@ -3,9 +3,6 @@ A simple quiz system for certification preparation. Users can create their own q
 
 ## 🚀 Getting Started
 
-✅ **方法二：全部放在單個 code block 中**  
-（簡潔但不那麼有結構）
-
 ## 1. Install dependencies
 pip install -r requirements.txt
 
