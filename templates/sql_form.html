@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Questions</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .option-row {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .option-row input[type="text"], .option-row textarea {
+            width: 550px;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .option-row input[type="text"] {
+            padding: 10px;
+            font-size: 16px;
+            width: 550px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .option-row input[type="checkbox"] {
+            margin-left: 10px;
+        }
+
+        .option-row .btn-add {
+            margin-left: 8px;
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .option-row .btn-add:hover {
+            background-color: #45a049;
+        }
+
+        .option-row .btn-clear {
+            margin-left: 8px;
+            cursor: pointer;
+            padding: 5px 10px;
+            background-color: #dc252b;
+            color: white;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .btn-submit {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+    </style>
+    <!-- SweetAlert2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>{{ title }}</h1>
+        <form id="dynamicForm">
+            <div id="questionArea">
+                <!-- 題目 -->
+                <div class="option-row">
+                    <label for="questionDetails">題目</label>
+                    <textarea name="questionDetails" id="questionDetails" rows="4" cols="50" placeholder="Enter detailed question description" required></textarea>
+                </div>
+
+            <div id="optionsContainer">
+                <!-- 初始選項 -->
+                <div class="option-row">
+                    <label for="Options1">選項 1</label>
+                    <input type="text" name="option" placeholder="Enter option" required>
+                    <input type="checkbox" name="correctAnswer" id="correctAnswer1">
+                    <label for="correctAnswer1">正解</label>
+                    <button type="button" class="btn-add" onclick="addOption()">+</button>
+                </div>
+            </div>
+
+            <!-- 單選與複選選項 -->
+            <div id="radioCheckboxGroup">
+                <label>題目類型：</label><br>
+                <input type="radio" name="type" value="singleChoice" id="singleChoice" checked>
+                <label for="singleChoice">單選</label>
+                <input type="radio" name="type" value="multipleChoice" id="multipleChoice">
+                <label for="multipleChoice">複選</label>
+            </div>
+            <!-- 提交按鈕 -->
+            <button type="submit" class="btn-submit" onclick="addForm()">新增</button>
+            <button type="button" class="btn-submit" onclick="clearForm()">清除</button>
+            <button type="button" class="btn-submit">
+                <a href="/" style="text-decoration: none; color: inherit;">返回</a>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        function addOption() {
+            const optionsContainer = document.getElementById('optionsContainer');
+            const currentOptionCount = optionsContainer.children.length + 1;
+
+            // Create a new row for the option
+            const newOptionRow = document.createElement('div');
+            newOptionRow.classList.add('option-row');
+            newOptionRow.setAttribute('id', 'optionRow' + currentOptionCount ) // 為了之後刪除使用
+
+            // Create the text input for the option
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.name = 'option' + currentOptionCount ;
+            input.placeholder = 'Enter option';
+            input.required = true;
+
+            // Create the checkbox for "正解"
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.name = 'correctAnswer' + currentOptionCount ;
+
+            const label = document.createElement('label');
+            label.innerText = '正解';
+
+            // Create the "+" button to add another row
+            const btnAdd = document.createElement('button');
+            btnAdd.type = 'button';
+            btnAdd.classList.add('btn-add');
+            btnAdd.innerText = '+';
+            btnAdd.onclick = addOption;
+
+            // 創建選項標籤
+            const optionLabel = document.createElement('label');
+            optionLabel.setAttribute('for', 'Options' + currentOptionCount );
+            optionLabel.innerText = '選項 ' + currentOptionCount ;
+
+            // Append elements to the new row
+            newOptionRow.appendChild(optionLabel);
+            newOptionRow.appendChild(input);
+            newOptionRow.appendChild(checkbox);
+            newOptionRow.appendChild(label);
+            newOptionRow.appendChild(btnAdd);
+
+            // 從第二個選項開始才加上 -
+            if (currentOptionCount  > 1) {
+                const btnRemove = document.createElement('button');
+                btnRemove.type = 'button';
+                btnRemove.classList.add('btn-clear');
+                btnRemove.innerText = '-';
+                btnRemove.onclick = function () {
+                document.getElementById('optionsContainer').removeChild(newOptionRow);
+                };
+                newOptionRow.appendChild(btnRemove);
+            }
+            optionsContainer.appendChild(newOptionRow);
+
+        }
+        function addForm() {
+            event.preventDefault();
+            const questionContent = document.getElementById("questionDetails").value;
+            const questionType = document.querySelector('input[name="type"]:checked').value;
+
+            const options = [];
+            const optionRows = document.querySelectorAll("#optionsContainer .option-row");
+            optionRows.forEach((row, index) => {
+                const input = row.querySelector('input[type="text"]');
+                const checkbox = row.querySelector('input[type="checkbox"]');
+                options.push({
+                    content: input.value,
+                    is_correct: checkbox.checked
+                });
+            });
+
+            fetch("/add", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    question: questionContent,
+                    type: questionType,
+                    options: options
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.status === "success") {
+                    Swal.fire({
+                    icon: 'success',
+                    title: '新增成功！',
+                    text: '題目已成功加入資料庫',
+                    timer: 2000,
+                    showConfirmButton: false
+                    });
+                    clearForm();
+                } else if (data.status === "duplicate") {
+                    Swal.fire({
+                    icon: 'warning',
+                    title: '重複題目',
+                    text: '題目已存在，請勿重複新增！'
+                    });
+                } else {
+                    Swal.fire({
+                    icon: 'error',
+                    title: '新增失敗',
+                    text: '請稍後再試一次或聯繫管理員'
+                    });
+                }
+            })
+            .catch(err => {
+                console.error("Error:", err);
+            });
+        }
+
+        // 清除表單函數
+        function clearForm() {
+            // Reset the form fields to their initial state
+            document.getElementById("dynamicForm").reset();
+            
+            // 清空動態選項區域
+            const optionsContainer = document.getElementById("optionsContainer");
+            while (optionsContainer.firstChild) {
+                optionsContainer.removeChild(optionsContainer.firstChild);
+            }
+            
+            // 重設選項計數
+            let optionCount = 0;
+            
+            // 加入初始的選項欄位
+            addOption();
+        }
+    </script>
+</body>
+</html>

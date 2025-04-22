@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>DB Questions</title>
+    <style>
+        .btn-group {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px; /* 兩顆 button 間距 */
+        }
+        .btn-addSQL, .btn-viewSQL {
+            padding: 10px 16px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-addSQL:hover,
+        .btn-viewSQL:hover {
+            background-color: #45a049;
+        }
+        .btn-addSQL a,
+        .btn-viewSQL a {
+            color: white;
+            text-decoration: none;
+        }
+        
+        .btn-SubmitAns {
+            top: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            background-color: #7d7dcc;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-SubmitAns:hover {
+            background-color: #6565b5;
+        }
+        .btn-SubmitAns a {
+            color: white;
+        }
+        
+        .btn-SubmitTest {
+            top: 20px;
+            right: 20px;
+            padding: 10px 16px;
+            background-color: #f99844;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-SubmitTest:hover {
+            background-color: #e68938;
+        }
+
+        .btn-SubmitTest a {
+            color: white;
+        }
+        body { font-family: Arial; padding: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #ccc; padding: 8px; text-align: left;}
+        th { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+    <div class="btn-group">
+        <button type="button" class="btn-addSQL">
+            <a href="/form" style="text-decoration: none; color: inherit;">新增題目</a>
+        </button>
+        <button type="button" class="btn-viewSQL">
+            <a href="/view" style="text-decoration: none; color: inherit;">檢視題庫</a>
+        </button>
+    </div>
+    <h1>Certification Exam System</h1>
+    {% if user_answers_map and user_answers_map|length > 0 %}
+    <h2>你目前得分為：{{ score }} / {{ questions|length * 2 }} 分</h2>
+    {% endif %}
+    <form method="post" action="/check_answers">
+        <table>
+            {% set option_prefix = ['A.', 'B.', 'C.', 'D.', 'E.', 'F.'] %}
+            {% for q in questions %}
+            <tr>
+                <th colspan="2">Question {{ loop.index }}</th>
+            </tr>
+            <tr>
+                <td colspan="2">{{ q.content }}<br><br>
+                    {% for opt in options[q.id] %}
+                        {% set is_selected = false %}
+                        {% set is_correct = false %}
+                        {% if user_answers_map is defined and q.id in user_answers_map %}
+                            {% set user = user_answers_map[q.id]['user_answers'] %}
+                            {% set correct = user_answers_map[q.id]['correct_answers'] %}
+                            {% set is_selected = opt.id|string in user %}
+                            {% set is_correct = opt.id|string in correct %}
+                        {% endif %}
+                    <div style="margin-bottom: 8px;">
+                        <label>
+                            <input type="{{ 'radio' if q.type == 'singleChoice' else 'checkbox' }}"
+                                   name="question_{{ q.id }}{% if q.type == 'multipleChoice' %}[]{% endif %}"
+                                   value="{{ opt.id }}"
+                                   {% if is_selected %}checked{% endif %}>
+                                {{ option_prefix[loop.index0] }} {{ opt.content }}
+                                {% if is_correct is not none %}
+                                    {% if is_correct %}
+                                        <span style="color:green;">✔️</span>
+                                    {% elif is_selected %}
+                                        <span style="color:red;">❌</span>
+                                    {% endif %}
+                                {% endif %}
+                        </label>
+                    </div>
+                    {% endfor %}
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% if not user_answers_map or user_answers_map|length == 0 %}
+            <button type="submit" class="btn-SubmitAns">送出答案</button>
+        {% else %}
+            <button type="button" class="btn-SubmitTest">
+                <a href="/" style="text-decoration: none; color: inherit;">再測一次</a></button>
+        {% endif %}
+    </form>
+
+</body>
+</html>
